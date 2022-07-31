@@ -1,0 +1,49 @@
+library(MASS)
+install.packages("car")
+library(car)
+
+data <- read.csv("monthly_total_mean_zhihou222555.csv",nrows=60)
+
+tlm<-lm(dailyNum ~ temp + preci + rh + ws + sp + temp1 + preci1 + rh1 + 
+          ws1 + sp1 + temp2 + preci2 + rh2 + ws2 + sp2 + temp3 + preci3 + 
+          rh3 + ws3 + sp3 + XJ,data=data)
+tlmfor<-step(tlm,direction="forward")
+summary(tlmfor)
+
+tlmboth=step(tlm,direction="both")
+summary(tlmboth)
+
+tlmback=step(tlm,direction="backward")
+summary(tlmback)
+
+anova(tlmback, tlmfor)
+AIC(tlmback, tlmfor)
+
+
+
+#算出模型的标准化残差
+library(TSA)
+y.rst=rstandard(lm.step)
+y.rst
+
+
+
+lm.salary=lm(log(dailyNum)~ XJ,data=data)
+lm.step=step(lm.salary,direction="both")
+y.rst=rstandard(lm.step)
+y.fit=predict(lm.step)
+plot(y.rst~y.fit)
+
+#绘制模型诊断图
+tlm<-lm(dailyNum ~  XJ,data=data)
+
+par(mfrow=c(2,2))
+plot(lm.step)
+influence.measures(lm.step)
+
+crPlots(tlm)
+
+qqPlot(tlm)
+
+vif(tlm)
+

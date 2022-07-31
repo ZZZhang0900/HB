@@ -1,0 +1,22 @@
+####  加载包和读取数据
+install.packages("glmnet")
+library(glmnet)
+
+###### 分别存储 自变量和因变量
+data <- read.csv("monthly_total_mean_zhihou222555.csv",nrows=60)
+
+x <- as.matrix(data[,1:21])
+y <- data[,22]
+
+#采用glmnet() 建模
+alpha1_fit <- glmnet(x,y,alpha=1,family="gaussian")
+plot(alpha1_fit,xvar="lambda",label=TRUE)
+
+#交叉验证
+alpha1.fit <- cv.glmnet(x,y,type.measure = "mse",alpha=1,family="gaussian")
+plot(alpha1.fit)
+print(alpha1.fit)
+
+coef(alpha1_fit,s=alpha1.fit$lambda.1se)
+
+

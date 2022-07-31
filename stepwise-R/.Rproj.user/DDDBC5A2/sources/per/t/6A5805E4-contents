@@ -1,0 +1,84 @@
+install.packages('leaps')
+library(leaps)
+library(MASS)
+library(caret)
+install.packages("car")
+library(car)
+library(TSA)
+
+data <- read.csv("monthly_total_mean_zhihou222555.csv",nrows=60)
+
+#######################################前向
+# 设立随机数种子
+#set.seed(123)
+#设置重复的k倍交叉验证
+train.control <- trainControl(method = "cv", number = 10)
+# 训练模型,nvmax，该参数对应于要纳入模型的最大预测变量数
+#"leapBackward"，以使线性回归与向后选择相适应
+#"leapForward"，以使线性回归与正向选择相适应
+#"leapSeq"，以逐步选择拟合线性回归
+step.Forward <- train(dailyNum ~., data = data,
+                    method = "leapForward", 
+                    tuneGrid = data.frame(nvmax = 1:8),
+                    trControl = train.control
+)
+step.Forward$results
+step.Forward
+#由train()函数自动选择的最佳调整值（nvmax）
+#step.Forward$bestTune
+
+#该函数summary()报告每种模型大小的最佳变量集，直到最佳的4变量模型。
+summary(step.Forward$finalModel)
+
+#最终模型的回归系数（id = 4）可以按以下方式访问：
+coef(step.Forward$finalModel, 3)
+#######################################后向
+step.Backward <- train(dailyNum ~., data = data,
+                    method = "leapBackward", 
+                    tuneGrid = data.frame(nvmax = 1:7),
+                    trControl = train.control
+)
+step.Backward$results
+step.Backward
+summary(step.Backward$finalModel)
+coef(step.Backward$finalModel, 4)
+
+#######################################双向
+step.leapSeq <- train(dailyNum ~., data = data,
+                       method = "leapSeq", 
+                       tuneGrid = data.frame(nvmax = 1:7),
+                       trControl = train.control
+)
+step.leapSeq$results
+step.leapSeq
+summary(step.leapSeq$finalModel)
+coef(step.leapSeq$finalModel,3)
+
+#######################################残差分析
+#算出模型的标准化残差
+y.rst=rstandard(step.Backward$finalModel)
+y.rst
+
+lm.salary=lm(log(dailyNum)~ XJ +preci3+rh1,data=data)
+lm.step=step(lm.salary,direction="both")
+y.rst=rstandard(lm.step)
+y.fit=predict(lm.step)
+plot(y.rst~y.fit)
+
+#绘制模型诊断图
+tlm<-lm(dailyNum ~  XJ +preci3+rh1,data=data)
+
+par(mfrow=c(2,2))
+plot(lm.step)
+influence.measures(lm.step)     #fig7
+
+crPlots(tlm)
+
+tlm2<-lm(dailyNum ~  XJ,data=data) #fig10A
+qqPlot(tlm2)
+
+tlm3<-lm(dailyNum ~  XJ +preci3+rh1,data=data)   #fig10B
+qqPlot(tlm3)
+
+vif(tlm)
+

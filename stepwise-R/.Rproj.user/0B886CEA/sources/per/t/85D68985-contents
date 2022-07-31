@@ -1,0 +1,19 @@
+#散点图矩阵
+library(GGally);library(ggplot2)
+library(PerformanceAnalytics)
+
+
+#data <- read.csv("monthly_total_mean_tongqi.csv",nrows=60)
+
+
+#chart.Correlation(data,columns=4:10,histogram = TRUE,pch=19)
+
+#data <- read.csv("monthly_total_mean_tongqi555.csv",nrows=60)
+
+
+
+data <- read.csv("monthly_total_mean_zhihou222555.csv",nrows=60)
+
+chart.Correlation(data,histogram = TRUE,pch=19)
+
+
