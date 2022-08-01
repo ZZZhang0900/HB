@@ -1,0 +1,2 @@
+neimeng.xlsx--saves the monthly number of human brucellosis infections in Inner Mongolia
+monthly_total_mean_zhihou222555.csv--saves the monthly mean value of meteorological factors in Inner Mongolia £¨with a lag of 0-3 months£©
